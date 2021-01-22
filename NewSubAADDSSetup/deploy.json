@@ -36,7 +36,7 @@
         }
     },
     "variables": {
-         "_artifactsLocation": "https://raw.githubusercontent.com/stgeorgi/wvdquickstart/master",
+         "_artifactsLocation": "https://raw.githubusercontent.com/haarthip/wvdquickstart/master",
         "AdminPasswordSecret": "adminPassword",
         "domainUsername": "domainJoiner",
         "vnetName": "aaddsVnet",
@@ -185,13 +185,6 @@
     },
     "resources": [
         {
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "[variables('identityName')]",
-            "apiVersion": "2018-11-30",
-            "location": "[variables('location')]",
-            "properties": {}
-        },
-        {
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-01-01-preview",
             "name": "[variables('autoAccountName')]",
@@ -260,46 +253,6 @@
                 {
                     "type": "runbooks",
                     "apiVersion": "2015-01-01-preview",
-                    "name": "ServicePrincipalRunbook",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/credentials/AzureCredentials')]"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "publishContentLink": {
-                            "uri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createServicePrincipal.ps1')]",
-                            "version": "1.0.0.0"
-                        }
-                    }
-                },
-                {
-                    "type": "jobs",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "[variables('jobGuid')]",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/ServicePrincipalRunbook')]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/inputValidationRunbook')]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid0'))]"
-                    ],
-                    "tags": {
-                        "key": "value"
-                    },
-                    "properties": {
-                        "runbook": {
-                            "name": "ServicePrincipalRunbook"
-                        }
-                    }
-                },
-                {
-                    "type": "runbooks",
-                    "apiVersion": "2015-01-01-preview",
                     "name": "devOpsSetupRunbook",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
@@ -327,7 +280,6 @@
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/',variables('jobGuid'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/devOpsSetupRunbook')]",
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid0'))]",
-                        "[concat('microsoft.visualstudio/account/', variables('devOpsName'))]",
                         "[concat('Microsoft.AAD/DomainServices/', parameters('domainName'))]"
                     ],
                     "tags": {
@@ -355,114 +307,6 @@
             "copy": {
                 "name": "variableLoop",
                 "count": "[length(variables('automationVariables'))]"
-            }
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('keyvaultName')]",
-            "location": "[variables('location')]",
-            "properties": {
-                "enabledForDeployment": true,
-                "enabledForTemplateDeployment": true,
-                "enabledForDiskEncryption": true,
-                "enableSoftDelete": true,
-                "lockForDeletion": false,
-                "tenantId": "[variables('tenantId')]",
-                "accessPolicies": [
-                    {
-                        "tenantId": "[variables('tenantId')]",
-                        "objectId": "[reference(concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))).principalId]",
-                        "permissions": {
-                        "keys": [
-                            "All"
-                        ],
-                        "secrets": [
-                            "All"
-                        ],
-                        "certificates": [
-                            "All"
-                        ]
-                        }
-                    }
-                ],
-                "sku": {
-                    "name": "Standard",
-                    "family": "A"
-                },
-                "secretsObject": {
-                    "value": {
-                        "secrets": []
-                    }
-                }
-            },
-            "dependsOn": [
-               "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid0'))]"
-            ],
-            "resources": [
-            ]
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2015-06-01",
-            "name": "[concat(variables('keyvaultName'), '/', variables('AdminPasswordSecret'))]",
-            "properties": {
-                "name": "[variables('AdminPasswordSecret')]",
-                "value": "[parameters('azureAdminPassword')]"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultName'))]"
-            ]
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2015-06-01",
-            "name": "[concat(variables('keyvaultName'), '/azurePassword')]",
-            "properties": {
-                "name": "azurePassword",
-                "value": "[parameters('azureAdminPassword')]"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultName'))]"
-            ]
-        },
-        {
-            "name": "[variables('devOpsName')]",
-            "type": "microsoft.visualstudio/account",
-            "location": "centralus",
-            "apiVersion": "2014-04-01-preview",
-            "properties": {
-              "operationType": "Create",
-              "accountName": "[variables('devOpsName')]"
-            },
-            "dependsOn": [
-                "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid0'))]"
-            ],
-            "resources": []
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
-            "name": "createDevopsPipeline",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid2'))]"
-            ],
-            "kind": "AzureCLI",
-            "identity": {
-                "type": "userAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
-                }
-            },
-            "properties": {
-                "forceUpdateTag": 1,
-                "azCliVersion": "2.0.80",
-                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', variables('keyvaultName'))]",
-                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
-                "timeout": "PT30M",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
             }
         },
         {

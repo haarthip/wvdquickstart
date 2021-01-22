@@ -169,8 +169,3 @@ $GroupObjectId = Get-AzureADGroup -Filter "DisplayName eq 'AAD DC Administrators
 
 # Add the user to the 'AAD DC Administrators' group.
 Add-AzureADGroupMember -ObjectId $GroupObjectId.ObjectId -RefObjectId $domainUser.ObjectId
-
-# Grant managed identity contributor role on subscription level
-$identity = Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name "WVDServicePrincipal"
-New-AzRoleAssignment -RoleDefinitionName "Contributor" -ObjectId $identity.PrincipalId -Scope "/subscriptions/$subscriptionId"
-Start-Sleep -Seconds 5
