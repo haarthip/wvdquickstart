@@ -58,11 +58,11 @@ Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Co
 Get-ExecutionPolicy -List
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-$CredentialAssetName = 'ServicePrincipalCred'
+#$CredentialAssetName = 'ServicePrincipalCred'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+#$SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
 $AzCredentialsAsset = 'AzureCredentials'
@@ -87,6 +87,7 @@ $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($B
 $PasswordProfile.Password = $UnsecurePassword
 $PasswordProfile.ForceChangePasswordNextLogin = $False
 $domainJoinUPN = $adminUsername + '@' + $domainName
+Write-Output "Adding domain join upn ${domainJoinUPN} to AzureADUser"
 
 New-AzureADUser -DisplayName $adminUsername -PasswordProfile $PasswordProfile -UserPrincipalName $domainJoinUPN -AccountEnabled $true -MailNickName $adminUsername
 

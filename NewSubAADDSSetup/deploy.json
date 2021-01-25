@@ -256,8 +256,7 @@
                     "name": "devOpsSetupRunbook",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('microsoft.visualstudio/account/', variables('devOpsName'))]"
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
                     ],
                     "tags": {},
                     "properties": {
@@ -277,7 +276,6 @@
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/',variables('jobGuid'))]",
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/devOpsSetupRunbook')]",
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('jobGuid0'))]",
                         "[concat('Microsoft.AAD/DomainServices/', parameters('domainName'))]"
