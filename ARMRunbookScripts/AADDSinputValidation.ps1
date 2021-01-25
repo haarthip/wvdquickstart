@@ -149,7 +149,7 @@ foreach($resourceProvider in $wvdResourceProviderName) {
     #Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
     # Fetch User Account Administrator role instance again
     #$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
-}
+#}
 # Add user to role
 #Add-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -RefObjectId $roleMember.ObjectId
 # Fetch role membership for role to confirm
