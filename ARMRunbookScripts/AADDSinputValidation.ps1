@@ -70,6 +70,7 @@ Try {
 	$userInAzureAD = Get-AzureADUser -Filter "UserPrincipalName eq `'$AADUsername`'"
 	Write-Output "User object ${userInAzureAD}"
 
+	Get-AzRoleAssignment
 	$isOwner = Get-AzRoleAssignment -ObjectID $userInAzureAD.ObjectId | Where-Object { $_.RoleDefinitionName -eq "Owner"}
 
 	if ($isOwner.RoleDefinitionName -eq "Owner") {
@@ -87,7 +88,8 @@ Catch {
 
 #region connect to Azure and check if admin on Azure AD 
 Try {
-	# this depends on the previous segment completeing 
+	# this depends on the previous segment completeing
+	Get-AzureADDirectoryRole
 	$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
 	$isMember = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser | Where-Object {$_.UserPrincipalName -eq $AADUsername}
 	
