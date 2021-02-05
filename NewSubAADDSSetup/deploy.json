@@ -185,87 +185,36 @@
     },
     "resources": [
         {
-            "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2015-01-01-preview",
-            "name": "[variables('autoAccountName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-            ],
-            "tags": {},
-            "properties": {
-                "sku": {
-                    "name": "Free"
-                }
-            },
-            "resources": [
-                {
-                    "type": "credentials",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "AzureCredentials",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "userName": "[parameters('azureAdminUpn')]",
-                        "password": "[parameters('azureAdminPassword')]"
-                    }
-                },
-                {
-                    "type": "runbooks",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "inputValidationRunbook",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/credentials/AzureCredentials')]"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "publishContentLink": {
-                            "uri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/AADDSinputValidation.ps1')]",
-                            "version": "1.0.0.0"
-                        }
-                    } 
-                },
-                {
-                    "type": "jobs",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "[variables('jobGuid0')]",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/inputValidationRunbook')]"
-                    ],
-                    "tags": {
-                        "key": "value"
-                    },
-                    "properties": {
-                        "runbook": {
-                            "name": "inputValidationRunbook"
-                        }
-                    }
-                }
-            ]
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('identityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[variables('location')]",
+            "properties": {}
         },
         {
-            "type": "Microsoft.Automation/automationAccounts/variables",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(variables('autoAccountName'), '/', variables('automationVariables')[copyIndex()].name)]",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "ValidateUserInput",
+            "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', variables('autoAccountName'))]"
+                "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]"
             ],
-            "tags": {},
-            "properties": {
-                "value": "[variables('automationVariables')[copyIndex()].value]"
+            "kind": "AzureCLI",
+            "identity": {
+                "type": "userAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
+                }
             },
-            "copy": {
-                "name": "variableLoop",
-                "count": "[length(variables('automationVariables'))]"
+            "properties": {
+                "forceUpdateTag": "1",
+                "azCliVersion": "2.0.80",
+                "scriptContent": "
+                    Write-Output 'Hello world'
+                ",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
             }
         }
     ],
