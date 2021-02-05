@@ -13,7 +13,7 @@ Additionally, this script assigns the subscription Contributor role to the WVDSe
 
 param(
 	[string]SubscriptionId,
-	[SecureString]AzureAdminUPN,
+	[string]AzureAdminUPN,
 	[SecureString]AzureAdminPassword
 )
 
@@ -53,16 +53,17 @@ Get-ExecutionPolicy -List
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
 $AzCredentials = New-Object System.Management.Automation.PsCredential($AzureAdminUPN, $AzureAdminPassword)
-Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
-Select-AzSubscription -SubscriptionId $SubscriptionId
+#Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
+#Select-AzSubscription -SubscriptionId $SubscriptionId
 
-$context = Get-AzContext
-if ($context -eq $null)
-{
-	Write-Error "Please authenticate to Azure & Azure AD using Login-AzAccount and Connect-AzureAD cmdlets and then run this script"
-	throw
-}
-$AADUsername = $context.Account.Id
+echo "hello world"
+#$context = Get-AzContext
+#if ($context -eq $null)
+#{
+#	Write-Error "Please authenticate to Azure & Azure AD using Login-AzAccount and Connect-AzureAD cmdlets and then run this script"
+#	throw
+#}
+#$AADUsername = $context.Account.Id
 
 #region connect to Azure and check if Owner
 #Try {
