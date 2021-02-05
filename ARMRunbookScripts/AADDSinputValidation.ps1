@@ -18,14 +18,14 @@ $fileURI = Get-AutomationVariable -Name 'fileURI'
 $domainName = Get-AutomationVariable -Name 'domainName'
 
 # Download files required for this script from github ARMRunbookScripts/static folder
-$FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
-$SplitFilenames = $FileNames.split(",")
-foreach($Filename in $SplitFilenames){
-Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
-}
+#$FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
+#$SplitFilenames = $FileNames.split(",")
+#foreach($Filename in $SplitFilenames){
+#Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
+#}
 
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
-Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
+#Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
 # Install required Az modules and AzureAD
 Import-Module Az.Accounts -Global
