@@ -11,11 +11,17 @@ Additionally, this script assigns the subscription Contributor role to the WVDSe
 
 #>
 
+param(
+	[string]SubscriptionId,
+	[SecureString]AzureAdminUPN,
+	[SecureString]AzureAdminPassword
+)
+
 #Initializing variables from automation account
-$SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
-$ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
-$fileURI = Get-AutomationVariable -Name 'fileURI'
-$domainName = Get-AutomationVariable -Name 'domainName'
+#$SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
+#$ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
+#$fileURI = Get-AutomationVariable -Name 'fileURI'
+#$domainName = Get-AutomationVariable -Name 'domainName'
 
 # Download files required for this script from github ARMRunbookScripts/static folder
 #$FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -42,12 +48,11 @@ Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Co
 Get-ExecutionPolicy -List
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-$AzCredentialsAsset = 'AzureCredentials'
+#$AzCredentialsAsset = 'AzureCredentials'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$AzCredentials = Get-AutomationPSCredential -Name $AzCredentialsAsset
-$AzCredentials.password.MakeReadOnly()
+$AzCredentials = New-Object System.Management.Automation.PsCredential($AzureAdminUPN, $AzureAdminPassword)
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
@@ -60,71 +65,71 @@ if ($context -eq $null)
 $AADUsername = $context.Account.Id
 
 #region connect to Azure and check if Owner
-Try {
-	Write-Output "Try to connect AzureAD. ${AzCredentials.userName}"
-	Connect-AzureAD -Credential $AzCredentials
+#Try {
+#	Write-Output "Try to connect AzureAD. ${AzCredentials.userName}"
+#	Connect-AzureAD -Credential $AzCredentials
 	
-	Write-Output "Connected to AzureAD."
+#	Write-Output "Connected to AzureAD."
 	
 	# get user object 
-	$userInAzureAD = Get-AzureADUser -Filter "UserPrincipalName eq `'$AADUsername`'"
-	Write-Output "User object ${userInAzureAD}"
+#	$userInAzureAD = Get-AzureADUser -Filter "UserPrincipalName eq `'$AADUsername`'"
+#	Write-Output "User object ${userInAzureAD}"
 
-	Get-AzRoleAssignment
-	$isOwner = Get-AzRoleAssignment -ObjectID $userInAzureAD.ObjectId | Where-Object { $_.RoleDefinitionName -eq "Owner"}
+#	Get-AzRoleAssignment
+#	$isOwner = Get-AzRoleAssignment -ObjectID $userInAzureAD.ObjectId | Where-Object { $_.RoleDefinitionName -eq "Owner"}
 
-	if ($isOwner.RoleDefinitionName -eq "Owner") {
-		Write-Output $($AADUsername + " has Owner role assigned")        
-	} 
-	else {
-		Write-Output "Missing Owner role."   
-		Throw
-	}
-}
-Catch {    
-	Write-Output  $($AADUsername + " does not have Owner role assigned")
-}
+#	if ($isOwner.RoleDefinitionName -eq "Owner") {
+#		Write-Output $($AADUsername + " has Owner role assigned")        
+#	} 
+#	else {
+#		Write-Output "Missing Owner role."   
+#		Throw
+#	}
+#}
+#Catch {    
+#	Write-Output  $($AADUsername + " does not have Owner role assigned")
+#}
 #endregion
 
 #region connect to Azure and check if admin on Azure AD 
-Try {
+#Try {
 	# this depends on the previous segment completeing
-	Get-AzureADDirectoryRole
-	$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
-	$isMember = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser | Where-Object {$_.UserPrincipalName -eq $AADUsername}
+#	Get-AzureADDirectoryRole
+#	$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
+#	$isMember = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser | Where-Object {$_.UserPrincipalName -eq $AADUsername}
 	
-	if ($isMember.UserType -eq "Member") {
-		Write-Output $($AADUsername + " has " + $role.DisplayName + " role assigned")        
-	} 
-	else {
-		Write-Output "Missing Owner role."   
-		Throw
-	}
-}
-Catch {    
-	Write-Output  $($AADUsername + " does not have " + $role.DisplayName + " role assigned")
-}
+#	if ($isMember.UserType -eq "Member") {
+#		Write-Output $($AADUsername + " has " + $role.DisplayName + " role assigned")        
+#	} 
+#	else {
+#		Write-Output "Missing Owner role."   
+#		Throw
+#	}
+#}
+#Catch {    
+#	Write-Output  $($AADUsername + " does not have " + $role.DisplayName + " role assigned")
+#}
 #endregion
 
 #region check Microsoft.DesktopVirtualization resource provider has been registered 
-$wvdResourceProviderName = "Microsoft.DesktopVirtualization","Microsoft.AAD","microsoft.visualstudio"
-foreach($resourceProvider in $wvdResourceProviderName) {
-	try {
-		Get-AzResourceProvider -ListAvailable | Where-Object { $_.ProviderNamespace -eq $wvdResourceProviderName  }
-		Write-Output  $($resourceProvider + " is registered!" )
-	}
-	Catch {
-		Write-Output  $("Resource provider " + $resourceProvider + " is not registered")
-		try {
-			Write-Output  $("Registering " + $resourceProvider )
-			Register-AzResourceProvider -ProviderNamespace $resourceProvider
-			Write-Output  $("Registration of " + $resourceProvider + " completed!" )
-		} 
-		catch {
-			Write-Output  $("Registering " + $resourceProvider + " has failed!" )
-		}
-	}
-}
+#$wvdResourceProviderName = "Microsoft.DesktopVirtualization","Microsoft.AAD","microsoft.visualstudio"
+#foreach($resourceProvider in $wvdResourceProviderName) {
+#	try {
+#		Get-AzResourceProvider -ListAvailable | Where-Object { $_.ProviderNamespace -eq $wvdResourceProviderName  }
+#		Write-Output  $($resourceProvider + " is registered!" )
+#	}
+#	Catch {
+#		Write-Output  $("Resource provider " + $resourceProvider + " is not registered")
+#		try {
+#			Write-Output  $("Registering " + $resourceProvider )
+#			Register-AzResourceProvider -ProviderNamespace $resourceProvider
+#			Write-Output  $("Registration of " + $resourceProvider + " completed!" )
+#		} 
+#		catch {
+#			Write-Output  $("Registering " + $resourceProvider + " has failed!" )
+#		}
+#	}
+#}
 #endregion
 
 #$PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
@@ -157,13 +162,13 @@ foreach($resourceProvider in $wvdResourceProviderName) {
 # Fetch role membership for role to confirm
 #Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser
 
-New-AzADServicePrincipal -ApplicationId "2565bd9d-da50-47d4-8b85-4c97f669dc36"
+#New-AzADServicePrincipal -ApplicationId "2565bd9d-da50-47d4-8b85-4c97f669dc36"
 
 # Create domain controller admin group
-New-AzureADGroup -DisplayName "AAD DC Administrators" `
-                 -Description "Delegated group to administer Azure AD Domain Services" `
-                 -SecurityEnabled $true -MailEnabled $false `
-                 -MailNickName "AADDCAdministrators"
+#New-AzureADGroup -DisplayName "AAD DC Administrators" `
+#                 -Description "Delegated group to administer Azure AD Domain Services" `
+#                 -SecurityEnabled $true -MailEnabled $false `
+#                 -MailNickName "AADDCAdministrators"
 
 # Add user to "AAD DC Administrators" group
 
