@@ -1,8 +1,4 @@
-param(
-    [string]$SubscriptionId,
-    [string]$AzureAdminUPN,
-    [SecureString]$AzureAdminPassword
-)
+param([string]$SubscriptionId, [string]$AzureAdminUPN, [SecureString]$AzureAdminPassword)
 
 #Initializing variables from automation account
 #$SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
