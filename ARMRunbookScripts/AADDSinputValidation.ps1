@@ -1,5 +1,3 @@
-# This version of the inputValidation script is only used when starting with a new or empty Azure subscription.
-
 param(
 	[string]SubscriptionId,
 	[string]AzureAdminUPN,
