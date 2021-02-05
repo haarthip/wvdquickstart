@@ -1,7 +1,7 @@
 param(
-	[string]SubscriptionId,
-	[string]AzureAdminUPN,
-	[SecureString]AzureAdminPassword
+    [string]$SubscriptionId,
+    [string]$AzureAdminUPN,
+    [SecureString]$AzureAdminPassword
 )
 
 #Initializing variables from automation account
@@ -59,7 +59,7 @@ echo "hello world"
 	
 #	Write-Output "Connected to AzureAD."
 	
-	# get user object 
+# get user object 
 #	$userInAzureAD = Get-AzureADUser -Filter "UserPrincipalName eq `'$AADUsername`'"
 #	Write-Output "User object ${userInAzureAD}"
 
@@ -81,7 +81,7 @@ echo "hello world"
 
 #region connect to Azure and check if admin on Azure AD 
 #Try {
-	# this depends on the previous segment completeing
+# this depends on the previous segment completeing
 #	Get-AzureADDirectoryRole
 #	$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
 #	$isMember = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser | Where-Object {$_.UserPrincipalName -eq $AADUsername}
@@ -139,11 +139,11 @@ echo "hello world"
 #$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
 # If role instance does not exist, instantiate it based on the role template
 #if ($role -eq $null) {
-    # Instantiate an instance of the role template
-    #$roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object {$_.displayName -eq 'Company Administrator'}
-    #Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
-    # Fetch User Account Administrator role instance again
-    #$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
+# Instantiate an instance of the role template
+#$roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object {$_.displayName -eq 'Company Administrator'}
+#Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
+# Fetch User Account Administrator role instance again
+#$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
 #}
 # Add user to role
 #Add-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -RefObjectId $roleMember.ObjectId
