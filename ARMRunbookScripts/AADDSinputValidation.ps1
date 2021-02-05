@@ -17,18 +17,18 @@ param([string]$SubscriptionId, [string]$AzureAdminUPN, [SecureString]$AzureAdmin
 #Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
 # Install required Az modules and AzureAD
-Import-Module Az.Accounts -Global
-Import-Module Az.Resources -Global
-Import-Module Az.Websites -Global
-Import-Module Az.Automation -Global
-Import-Module Az.Managedserviceidentity -Global
-Import-Module Az.Keyvault -Global
-Import-Module Az.Network -Global
-Import-Module AzureAD -Global
+#Import-Module Az.Accounts -Global
+#Import-Module Az.Resources -Global
+#Import-Module Az.Websites -Global
+#Import-Module Az.Automation -Global
+#Import-Module Az.Managedserviceidentity -Global
+#Import-Module Az.Keyvault -Global
+#Import-Module Az.Network -Global
+#Import-Module AzureAD -Global
 
-Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
-Get-ExecutionPolicy -List
+#Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
+#Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
+#Get-ExecutionPolicy -List
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
 #$AzCredentialsAsset = 'AzureCredentials'
@@ -39,7 +39,7 @@ $AzCredentials = New-Object System.Management.Automation.PsCredential($AzureAdmi
 #Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 #Select-AzSubscription -SubscriptionId $SubscriptionId
 
-echo "hello world"
+Write-Output "hello world"
 #$context = Get-AzContext
 #if ($context -eq $null)
 #{
