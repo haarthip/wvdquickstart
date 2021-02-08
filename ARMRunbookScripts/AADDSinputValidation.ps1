@@ -85,7 +85,7 @@ Catch {
 Try {
     # this depends on the previous segment completeing 
     Get-AzureADDirectoryRole
-    $role = Get-AzureADDirectoryRole | Where-Object { $_.displayName -eq 'Company Administrator' }
+    $role = Get-AzureADDirectoryRole | Where-Object { $_.RoleTemplateId -eq '62e90394-69f5-4237-9190-012177145e10' }
     $isMember = Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser | Where-Object { $_.UserPrincipalName -eq $AADUsername }
 	
     if ($isMember.UserType -eq "Member") {
@@ -98,72 +98,73 @@ Try {
 }
 Catch {    
     Write-Output  $($AADUsername + " does not have " + $role.DisplayName + " role assigned")
+    Throw
 }
 #endregion
 
 #region check Microsoft.DesktopVirtualization resource provider has been registered 
-#$wvdResourceProviderName = "Microsoft.DesktopVirtualization","Microsoft.AAD","microsoft.visualstudio"
-#foreach($resourceProvider in $wvdResourceProviderName) {
-#	try {
-#		Get-AzResourceProvider -ListAvailable | Where-Object { $_.ProviderNamespace -eq $wvdResourceProviderName  }
-#		Write-Output  $($resourceProvider + " is registered!" )
-#	}
-#	Catch {
-#		Write-Output  $("Resource provider " + $resourceProvider + " is not registered")
-#		try {
-#			Write-Output  $("Registering " + $resourceProvider )
-#			Register-AzResourceProvider -ProviderNamespace $resourceProvider
-#			Write-Output  $("Registration of " + $resourceProvider + " completed!" )
-#		} 
-#		catch {
-#			Write-Output  $("Registering " + $resourceProvider + " has failed!" )
-#		}
-#	}
-#}
+$wvdResourceProviderName = "Microsoft.DesktopVirtualization", "Microsoft.AAD", "microsoft.visualstudio"
+foreach ($resourceProvider in $wvdResourceProviderName) {
+    try {
+        Get-AzResourceProvider -ListAvailable | Where-Object { $_.ProviderNamespace -eq $wvdResourceProviderName }
+        Write-Output  $($resourceProvider + " is registered!" )
+    }
+    Catch {
+        Write-Output  $("Resource provider " + $resourceProvider + " is not registered")
+        try {
+            Write-Output  $("Registering " + $resourceProvider )
+            Register-AzResourceProvider -ProviderNamespace $resourceProvider
+            Write-Output  $("Registration of " + $resourceProvider + " completed!" )
+        } 
+        catch {
+            Write-Output  $("Registering " + $resourceProvider + " has failed!" )
+        }
+    }
+}
 #endregion
 
-#$PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
+$PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
 
-#$username = "tempUser@" + $domainName
+$username = "tempUser@" + $domainName
 
-#$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AzCredentials.password)
-#$UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-#$PasswordProfile.Password = $UnsecurePassword
-#$PasswordProfile.ForceChangePasswordNextLogin = $False
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AzCredentials.password)
+$UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+$PasswordProfile.Password = $UnsecurePassword
+$PasswordProfile.ForceChangePasswordNextLogin = $False
 
-#New-AzureADUser -DisplayName $username -PasswordProfile $PasswordProfile -UserPrincipalName $username -AccountEnabled $true -MailNickName "tempUser"
+New-AzureADUser -DisplayName $username -PasswordProfile $PasswordProfile -UserPrincipalName $username -AccountEnabled $true -MailNickName "tempUser"
 
-#$domainUser = Get-AzureADUser -Filter "UserPrincipalName eq '$($username)'" | Select-Object ObjectId
+$domainUser = Get-AzureADUser -Filter "UserPrincipalName eq '$($username)'" | Select-Object ObjectId
 # Fetch user to assign to role
-#$roleMember = Get-AzureADUser -ObjectId $domainUser.ObjectId
+$roleMember = Get-AzureADUser -ObjectId $domainUser.ObjectId
 
 # Fetch User Account Administrator role instance
-#$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
+$role = Get-AzureADDirectoryRole | Where-Object { $_.displayName -eq 'Company Administrator' }
 # If role instance does not exist, instantiate it based on the role template
-#if ($role -eq $null) {
-# Instantiate an instance of the role template
-#    $roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object {$_.displayName -eq 'Company Administrator'}
-#    Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
-# Fetch User Account Administrator role instance again
-#    $role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
-#}
+if ($role -eq $null) {
+    # Instantiate an instance of the role template
+    $roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object { $_.displayName -eq 'Company Administrator' }
+    Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
+    # Fetch User Account Administrator role instance again
+    $role = Get-AzureADDirectoryRole | Where-Object { $_.displayName -eq 'Company Administrator' }
+}
 # Add user to role
-#Add-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -RefObjectId $roleMember.ObjectId
+Add-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -RefObjectId $roleMember.ObjectId
 # Fetch role membership for role to confirm
-#Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser
+Get-AzureADDirectoryRoleMember -ObjectId $role.ObjectId | Get-AzureADUser
 
-#New-AzADServicePrincipal -ApplicationId "2565bd9d-da50-47d4-8b85-4c97f669dc36"
+New-AzADServicePrincipal -ApplicationId "2565bd9d-da50-47d4-8b85-4c97f669dc36"
 
 # Create domain controller admin group
-#New-AzureADGroup -DisplayName "AAD DC Administrators" `
-#                 -Description "Delegated group to administer Azure AD Domain Services" `
-#                 -SecurityEnabled $true -MailEnabled $false `
-#                 -MailNickName "AADDCAdministrators"
+New-AzureADGroup -DisplayName "AAD DC Administrators" `
+    -Description "Delegated group to administer Azure AD Domain Services" `
+    -SecurityEnabled $true -MailEnabled $false `
+    -MailNickName "AADDCAdministrators"
 
 # Add user to "AAD DC Administrators" group
 
 # First, retrieve the object ID of the newly created 'AAD DC Administrators' group.
-#$GroupObjectId = Get-AzureADGroup -Filter "DisplayName eq 'AAD DC Administrators'" | Select-Object ObjectId
+$GroupObjectId = Get-AzureADGroup -Filter "DisplayName eq 'AAD DC Administrators'" | Select-Object ObjectId
 
 # Add the user to the 'AAD DC Administrators' group.
-#Add-AzureADGroupMember -ObjectId $GroupObjectId.ObjectId -RefObjectId $domainUser.ObjectId
+Add-AzureADGroupMember -ObjectId $GroupObjectId.ObjectId -RefObjectId $domainUser.ObjectId

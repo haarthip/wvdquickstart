@@ -36,8 +36,8 @@ start-sleep -Seconds 2700
 # Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
-foreach($Filename in $SplitFilenames){
-Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
+foreach ($Filename in $SplitFilenames) {
+    Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
 }
 
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
@@ -96,14 +96,14 @@ $domainUser = Get-AzureADUser -Filter "UserPrincipalName eq '$($domainJoinUPN)'"
 $roleMember = Get-AzureADUser -ObjectId $domainUser.ObjectId
 
 # Fetch User Account Administrator role instance
-$role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
+$role = Get-AzureADDirectoryRole | Where-Object { $_.RoleTemplateId -eq '62e90394-69f5-4237-9190-012177145e10' }
 # If role instance does not exist, instantiate it based on the role template
 if ($role -eq $null) {
     # Instantiate an instance of the role template
-    $roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object {$_.displayName -eq 'Company Administrator'}
+    $roleTemplate = Get-AzureADDirectoryRoleTemplate | Where-Object { $_.displayName -eq 'Company Administrator' }
     Enable-AzureADDirectoryRole -RoleTemplateId $roleTemplate.ObjectId
     # Fetch User Account Administrator role instance again
-    $role = Get-AzureADDirectoryRole | Where-Object {$_.displayName -eq 'Company Administrator'}
+    $role = Get-AzureADDirectoryRole | Where-Object { $_.displayName -eq 'Company Administrator' }
 }
 # Add user to role
 Add-AzureADDirectoryRoleMember -ObjectId $role.ObjectId -RefObjectId $roleMember.ObjectId
@@ -118,8 +118,7 @@ Add-AzureADGroupMember -ObjectId $GroupObjectId.ObjectId -RefObjectId $domainUse
 
 # Get the context
 $context = Get-AzContext
-if ($context -eq $null)
-{
-	Write-Error "Please authenticate to Azure & Azure AD using Login-AzAccount and Connect-AzureAD cmdlets and then run this script"
-	exit
+if ($context -eq $null) {
+    Write-Error "Please authenticate to Azure & Azure AD using Login-AzAccount and Connect-AzureAD cmdlets and then run this script"
+    exit
 }
