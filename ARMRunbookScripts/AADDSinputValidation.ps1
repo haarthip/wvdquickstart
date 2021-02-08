@@ -35,11 +35,12 @@ param([string]$SubscriptionId, [string]$AzureAdminUPN, [SecureString]$AzureAdmin
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$AzCredentials = New-Object System.Management.Automation.PsCredential($AzureAdminUPN, $AzureAdminPassword)
+#$AzCredentials = New-Object System.Management.Automation.PsCredential($AzureAdminUPN, $AzureAdminPassword)
 #Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 #Select-AzSubscription -SubscriptionId $SubscriptionId
 
 Write-Output "hello world"
+Get-AzureADUser -Filter "UserPrincipalName eq `'$AzureAdminUPN`'"
 #$context = Get-AzContext
 #if ($context -eq $null)
 #{
