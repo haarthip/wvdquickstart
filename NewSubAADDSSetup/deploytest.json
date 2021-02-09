@@ -66,13 +66,14 @@
             "23.100.14.28",
             "13.64.188.43",
             "23.99.93.197"
-        ]
+        ],
+        "name": "[concat(parameters('rgName'), '-wvd-domain')]"
     },
     "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "name": "[parameters('rgName')]",
+            "name": "[variables('name')]",
             "location": "[parameters('location')]",
             "tags": {
                 "Note": "subscription level deployment"
@@ -83,7 +84,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "name": "storageDeployment",
-            "resourceGroup": "[parameters('rgName')]",
+            "resourceGroup": "[variables('name')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups/', parameters('rgName'))]"
             ],
