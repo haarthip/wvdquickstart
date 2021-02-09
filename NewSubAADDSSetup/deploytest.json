@@ -86,7 +86,7 @@
             "name": "storageDeployment",
             "resourceGroup": "[variables('name')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('rgName'))]"
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('name'))]"
             ],
             "properties": {
                 "mode": "Incremental",
